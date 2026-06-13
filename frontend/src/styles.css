@@ -1954,3 +1954,164 @@ button {
   .pos-sec { padding: 9px 10px; }
   .pos-pay  { padding: 10px 10px 12px; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Comprobante / Receipt
+   ══════════════════════════════════════════════════════════════ */
+
+/* Wider modal for the receipt */
+.modal-comprobante { max-width: 480px; }
+
+/* POS: monto parcial preview */
+.pos-cxc-preview {
+  font-size: 12px;
+  margin-top: 4px;
+  color: var(--color-warning, #d97706);
+  font-weight: 500;
+}
+
+/* Receipt container */
+.recibo {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  color: #111;
+  padding: 4px 0 8px;
+  line-height: 1.45;
+}
+
+.recibo-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.recibo-logo-box {
+  width: 46px;
+  height: 46px;
+  background: var(--color-primary, #2563eb);
+  color: #fff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 17px;
+  font-family: sans-serif;
+  flex-shrink: 0;
+}
+
+.recibo-empresa {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+.recibo-empresa strong { font-size: 14px; font-family: sans-serif; color: #111; }
+.recibo-empresa span   { font-size: 11px; color: #666; font-family: sans-serif; }
+
+.recibo-sep {
+  border: none;
+  border-top: 1px dashed #bbb;
+  margin: 7px 0;
+}
+
+.recibo-meta,
+.recibo-cliente,
+.recibo-pago {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+}
+
+.recibo-meta div,
+.recibo-cliente div,
+.recibo-pago div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.recibo-meta span,
+.recibo-cliente span,
+.recibo-pago span { color: #666; }
+
+/* Product table inside receipt */
+.recibo-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin: 4px 0;
+}
+
+.recibo-tbl th {
+  border-bottom: 1px solid #aaa;
+  padding: 3px 4px;
+  text-align: left;
+  font-size: 11px;
+  color: #555;
+  font-weight: 600;
+}
+
+.recibo-tbl td {
+  padding: 4px 4px;
+  vertical-align: top;
+}
+
+.recibo-tbl td:last-child,
+.recibo-tbl th:last-child { text-align: right; }
+
+.recibo-tbl small { display: block; color: #888; font-size: 10px; }
+
+/* Totals block */
+.recibo-totales {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 13px;
+}
+
+.recibo-tot-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.recibo-desc { color: #dc2626; }
+
+.recibo-total-main {
+  font-weight: 900;
+  font-size: 17px;
+  font-family: sans-serif;
+  padding-top: 4px;
+  border-top: 1px solid #555;
+  margin-top: 2px;
+}
+
+.recibo-saldo strong { color: var(--color-warning, #d97706); }
+
+/* Receipt footer */
+.recibo-footer {
+  text-align: center;
+  font-family: sans-serif;
+  font-size: 12px;
+  color: #777;
+  margin-top: 6px;
+}
+.recibo-footer p { margin: 2px 0; }
+
+/* ── Print ──────────────────────────────────────────────────── */
+@media print {
+  body * { visibility: hidden !important; }
+  #recibo-print,
+  #recibo-print * { visibility: visible !important; }
+  #recibo-print {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 80mm;
+    padding: 8px;
+    background: #fff;
+    font-size: 11px;
+  }
+  .no-print { display: none !important; }
+}

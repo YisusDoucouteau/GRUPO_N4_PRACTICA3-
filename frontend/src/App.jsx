@@ -43,7 +43,7 @@ function SelectField({ label, val, onChange, opts, required }) {
 }
 
 /* ─── Comprobante / Receipt Modal ────────────────────────────── */
-function ComprobanteModal({ isOpen, onClose, venta, factura, metodoPago, montoPagadoAmt }) {
+function ComprobanteModal({ isOpen, onClose, venta, factura, metodoPago, montoPagadoAmt, closeLabel = 'Cerrar' }) {
   if (!isOpen || !venta) return null;
 
   const esDiferido = venta.condicion_pago === 'CREDITO' || venta.condicion_pago === 'PARCIAL';
@@ -163,7 +163,7 @@ function ComprobanteModal({ isOpen, onClose, venta, factura, metodoPago, montoPa
             Imprimir
           </button>
           <button className="btn btn-primary" type="button" onClick={onClose}>
-            {onClose.name === 'cerrarComprobante' || true ? 'Finalizar y nueva venta' : 'Cerrar'}
+            {closeLabel}
           </button>
         </div>
       </div>
@@ -740,6 +740,7 @@ function Caja() {
       factura={comprobante?.factura}
       metodoPago={comprobante?.metodoPago}
       montoPagadoAmt={comprobante?.montoPagadoAmt}
+      closeLabel="Finalizar y nueva venta"
     />
     </>
   );
@@ -1127,35 +1128,6 @@ function Inventario() {
   );
 }
 
-/* ─── Ventas (Historial) ─────────────────────────────────────── */
-function Ventas({ onNavigate }) {
-  const { data, error } = useLoad(async () => ({
-    ventas: await getJSON('/api/sales/ventas'),
-  }));
-
-  return (
-    <Page title="Ventas" subtitle="Historial de ventas registradas">
-      <Alert type="error">{error}</Alert>
-      <div className="info-banner">
-        <span>Para registrar una nueva venta usa el módulo Caja / POS.</span>
-        <button className="btn btn-primary btn-small" onClick={() => onNavigate('caja')}>
-          Ir a Caja / POS →
-        </button>
-      </div>
-      <section className="panel">
-        <div className="panel-header"><h3>Historial de ventas</h3></div>
-        <Table
-          columns={['ID', 'Cliente', 'Total', 'Condición', 'Método pago', 'Fecha']}
-          rows={arr(data.ventas).map(v => [
-            v.id, v.cliente || 'Consumidor final', money(v.total),
-            v.condicion_pago, v.metodo_pago, v.fecha,
-          ])}
-          empty="No hay ventas registradas aún."
-        />
-      </section>
-    </Page>
-  );
-}
 
 /* ─── Compras ────────────────────────────────────────────────── */
 function Compras() {
@@ -1266,17 +1238,19 @@ function Compras() {
   );
 }
 
-/* ─── Finanzas ───────────────────────────────────────────────── */
-function Finanzas() {
+/* ─── Finanzas / Ventas ──────────────────────────────────────── */
+function Finanzas({ onNavigate }) {
   const { data, error, reload } = useLoad(async () => ({
     pagos:   await getJSON('/api/payments/pagos'),
     cxc:     await getJSON('/api/payments/cuentas-cobrar'),
     cxp:     await getJSON('/api/payments/cuentas-pagar'),
     resumen: await getJSON('/api/payments/resumen'),
+    ventas:  await getJSON('/api/sales/ventas'),
   }));
   const [pagoCxc, setPagoCxc] = useState({ id: '', monto_pagado: '', metodo_pago: 'EFECTIVO', observacion: '' });
   const [pagoCxp, setPagoCxp] = useState({ id: '', monto_pagado: '', metodo_pago: 'EFECTIVO', observacion: '' });
   const [msg, setMsg] = useState('');
+  const [ventaModal, setVentaModal] = useState(null); // { venta, factura }
 
   const pagar = async (tipo) => {
     try {
@@ -1289,16 +1263,64 @@ function Finanzas() {
     } catch (err) { setMsg(err.message); }
   };
 
+  const verComprobante = async (ventaId) => {
+    try {
+      const venta = await getJSON(`/api/sales/ventas/${ventaId}`);
+      let factura = null;
+      try { factura = await getJSON(`/api/billing/facturas/por-venta/${ventaId}`); } catch (_) {}
+      setVentaModal({ venta, factura });
+    } catch (err) { setMsg(err.message); }
+  };
+
+  const estadoBadge = (e) => {
+    const color = e === 'PAGADO' ? 'var(--color-success,#16a34a)' : e === 'PENDIENTE' ? 'var(--color-warning,#d97706)' : 'var(--color-primary,#2563eb)';
+    return <span style={{ color, fontWeight: 700, fontSize: 12 }}>{e}</span>;
+  };
+
   return (
-    <Page title="Finanzas" subtitle="Pagos, cuentas por cobrar y cuentas por pagar">
+    <>
+    <Page title="Finanzas / Ventas" subtitle="Historial de ventas, cuentas por cobrar y pagar">
       <Alert type="error">{error}</Alert>
-      <Alert type={msg.includes('Error') ? 'error' : 'success'}>{msg}</Alert>
+      <Alert type={msg.includes('Error') || msg.includes('error') ? 'error' : 'success'}>{msg}</Alert>
+
+      {/* Resumen financiero */}
       <section className="cards">
-        <Card title="Ingresos"       value={money(data.resumen?.total_ingresos)}   icon="💰" />
-        <Card title="Egresos"        value={money(data.resumen?.total_egresos)}    icon="💸" />
+        <Card title="Ingresos"         value={money(data.resumen?.total_ingresos)}   icon="💰" />
+        <Card title="Egresos"          value={money(data.resumen?.total_egresos)}    icon="💸" />
         <Card title="Saldo por cobrar" value={money(data.resumen?.total_por_cobrar)} icon="📈" />
         <Card title="Saldo por pagar"  value={money(data.resumen?.total_por_pagar)}  icon="📉" />
       </section>
+
+      {/* Historial de ventas */}
+      <section className="panel">
+        <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h3>Historial de ventas</h3>
+            <p className="panel-subtitle">Haz clic en "Ver comprobante" para ver o reimprimir el recibo</p>
+          </div>
+          <button className="btn btn-primary btn-small" onClick={() => onNavigate('caja')}>
+            + Nueva venta (Caja)
+          </button>
+        </div>
+        <Table
+          columns={['Código', 'Cliente', 'Total', 'Condición', 'Método', 'Estado', 'Fecha', 'Comprobante']}
+          rows={arr(data.ventas).map(v => [
+            v.codigo,
+            v.cliente || 'Consumidor final',
+            money(v.total),
+            v.condicion_pago,
+            v.metodo_pago || '—',
+            estadoBadge(v.estado_pago),
+            v.fecha ? new Date(v.fecha).toLocaleString('es-BO', { dateStyle: 'short', timeStyle: 'short' }) : '—',
+            <button key={v.id} className="btn btn-secondary btn-small" onClick={() => verComprobante(v.id)}>
+              Ver comprobante
+            </button>,
+          ])}
+          empty="No hay ventas registradas aún."
+        />
+      </section>
+
+      {/* Cuentas por cobrar — abono */}
       <section className="panel">
         <div className="panel-header"><h3>Registrar abono en cuenta por cobrar</h3></div>
         <div className="form-grid">
@@ -1326,12 +1348,12 @@ function Finanzas() {
               onChange={e => setPagoCxc({ ...pagoCxc, observacion: e.target.value })} />
           </Field>
           <div className="actions end" style={{ gridColumn: '1 / -1' }}>
-            <button className="btn btn-success" onClick={() => pagar('cxc')} disabled={!pagoCxc.id}>
-              Registrar abono
-            </button>
+            <button className="btn btn-success" onClick={() => pagar('cxc')} disabled={!pagoCxc.id}>Registrar abono</button>
           </div>
         </div>
       </section>
+
+      {/* Cuentas por pagar — pago */}
       <section className="panel">
         <div className="panel-header"><h3>Registrar pago en cuenta por pagar</h3></div>
         <div className="form-grid">
@@ -1359,25 +1381,36 @@ function Finanzas() {
               onChange={e => setPagoCxp({ ...pagoCxp, observacion: e.target.value })} />
           </Field>
           <div className="actions end" style={{ gridColumn: '1 / -1' }}>
-            <button className="btn btn-success" onClick={() => pagar('cxp')} disabled={!pagoCxp.id}>
-              Registrar pago
-            </button>
+            <button className="btn btn-success" onClick={() => pagar('cxp')} disabled={!pagoCxp.id}>Registrar pago</button>
           </div>
         </div>
       </section>
-      <section className="panel"><div className="panel-header"><h3>Cuentas por cobrar</h3></div>
+
+      <section className="panel">
+        <div className="panel-header"><h3>Cuentas por cobrar</h3></div>
         <Table columns={['ID', 'Cliente', 'Venta', 'Total', 'Saldo', 'Estado']}
-          rows={arr(data.cxc).map(c => [c.id, c.cliente, c.venta_id, money(c.monto_total), money(c.saldo_pendiente), c.estado_cobro])} />
+          rows={arr(data.cxc).map(c => [c.id, c.cliente, c.codigo_venta || c.venta_id, money(c.monto_total), money(c.saldo_pendiente), estadoBadge(c.estado_cobro)])} />
       </section>
-      <section className="panel"><div className="panel-header"><h3>Cuentas por pagar</h3></div>
+      <section className="panel">
+        <div className="panel-header"><h3>Cuentas por pagar</h3></div>
         <Table columns={['ID', 'Proveedor', 'Compra', 'Total', 'Saldo', 'Estado']}
-          rows={arr(data.cxp).map(c => [c.id, c.proveedor, c.compra_id, money(c.monto_total), money(c.saldo_pendiente), c.estado_pago])} />
+          rows={arr(data.cxp).map(c => [c.id, c.proveedor, c.compra_id, money(c.monto_total), money(c.saldo_pendiente), estadoBadge(c.estado_pago)])} />
       </section>
-      <section className="panel"><div className="panel-header"><h3>Pagos registrados</h3></div>
+      <section className="panel">
+        <div className="panel-header"><h3>Pagos registrados</h3></div>
         <Table columns={['ID', 'Tipo', 'Monto', 'Método', 'Fecha']}
           rows={arr(data.pagos).map(p => [p.id, p.tipo_flujo, money(p.monto_pagado), p.metodo_pago, p.fecha])} />
       </section>
     </Page>
+    <ComprobanteModal
+      isOpen={!!ventaModal}
+      onClose={() => setVentaModal(null)}
+      venta={ventaModal?.venta}
+      factura={ventaModal?.factura}
+      metodoPago={ventaModal?.venta?.metodo_pago}
+      montoPagadoAmt={null}
+    />
+    </>
   );
 }
 
