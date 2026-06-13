@@ -31,7 +31,8 @@ const obtenerVentas = async (req, res) => {
         v.estado_pago,
         v.estado_venta,
         v.observacion,
-        v.fecha
+        v.fecha,
+        (SELECT metodo_pago FROM pagos WHERE venta_id = v.id AND estado = 1 AND tipo_flujo = 'INGRESO' LIMIT 1) AS metodo_pago
       FROM ventas v
       LEFT JOIN clientes c ON v.cliente_id = c.id
       INNER JOIN usuarios u ON v.usuario_id = u.id
@@ -70,7 +71,8 @@ const obtenerVentaPorId = async (req, res) => {
         v.estado_pago,
         v.estado_venta,
         v.observacion,
-        v.fecha
+        v.fecha,
+        (SELECT metodo_pago FROM pagos WHERE venta_id = v.id AND estado = 1 AND tipo_flujo = 'INGRESO' LIMIT 1) AS metodo_pago
       FROM ventas v
       LEFT JOIN clientes c ON v.cliente_id = c.id
       INNER JOIN usuarios u ON v.usuario_id = u.id
