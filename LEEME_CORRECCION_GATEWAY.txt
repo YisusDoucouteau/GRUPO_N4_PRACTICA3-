@@ -1,0 +1,22 @@
+CORRECCION APLICADA
+===================
+
+Se corrigio el API Gateway porque estaba cortando la ruta /api/... al reenviar a los microservicios.
+Por eso el frontend mostraba: Ruta no encontrada.
+
+Ahora el Gateway esta en version 1.2.0 y reenvia manualmente la ruta completa.
+
+PASOS PARA PROBAR:
+1. Ejecuta detener_node.bat o en PowerShell: taskkill /F /IM node.exe
+2. Ejecuta instalar_todo_final.bat si es la primera vez despues de reemplazar.
+3. Ejecuta iniciar_todo_final.bat
+4. Abre: http://localhost:3000/health
+5. Verifica que diga version 1.2.0
+6. Prueba:
+   http://localhost:3000/api/catalog/productos
+   http://localhost:3000/api/inventory/stock
+   http://localhost:3000/api/payments/resumen
+7. Abre el frontend:
+   http://127.0.0.1:5173
+
+Si /health muestra version 1.1.0, no se reemplazo bien la carpeta backend/gateway.

@@ -1,0 +1,64 @@
+CHECKLIST FINAL DE PRUEBAS - OMNICOMMERCE
+
+1. MySQL debe estar encendido.
+2. La base db_omnicommerce debe estar importada.
+3. Ejecutar:
+   iniciar_todo_final.bat
+
+RUTAS PRINCIPALES:
+
+Gateway:
+http://localhost:3000/
+http://localhost:3000/health
+
+Catalogo:
+http://localhost:3000/api/catalog/categorias
+http://localhost:3000/api/catalog/productos
+
+Inventario:
+http://localhost:3000/api/inventory/sucursales
+http://localhost:3000/api/inventory/almacenes
+http://localhost:3000/api/inventory/stock
+
+Ventas:
+http://localhost:3000/api/sales/clientes
+http://localhost:3000/api/sales/ventas
+
+Compras:
+http://localhost:3000/api/purchases/proveedores
+http://localhost:3000/api/purchases/compras
+
+Pagos:
+http://localhost:3000/api/payments/pagos
+http://localhost:3000/api/payments/cuentas-cobrar
+http://localhost:3000/api/payments/cuentas-pagar
+http://localhost:3000/api/payments/resumen
+
+Facturacion:
+http://localhost:3000/api/billing/facturas
+http://localhost:3000/api/billing/facturas/ventas-sin-factura
+
+Operaciones:
+http://localhost:3000/api/operations/devoluciones-bajas
+http://localhost:3000/api/operations/transformaciones
+
+Usuarios:
+http://localhost:3000/api/users/roles
+http://localhost:3000/api/users/usuarios
+
+FRONTEND:
+http://localhost:5173
+
+FLUJO DE PRUEBA RECOMENDADO:
+
+1. Ver productos y categorias.
+2. Ver inventario.
+3. Crear venta.
+4. Ver que bajó stock.
+5. Crear factura de esa venta.
+6. Crear compra.
+7. Ver que subió stock.
+8. Ver pagos y resumen.
+9. Crear devolución/baja.
+10. Crear transformación.
+11. Crear usuario y probar login.

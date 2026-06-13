@@ -1,0 +1,10 @@
+3001 → catalog-service      Productos, categorías
+3002 → inventory-service    Inventario, almacenes, sucursales
+3003 → sales-service        Ventas, clientes
+3004 → purchases-service    Compras, proveedores
+3005 → payments-service     Pagos, cuentas por cobrar/pagar
+3006 → billing-service      Facturación
+3007 → operations-service   Devoluciones, bajas, transformaciones
+3008 → users-service        Usuarios, roles, login básico
+3000 → api-gateway
+5173 → frontend

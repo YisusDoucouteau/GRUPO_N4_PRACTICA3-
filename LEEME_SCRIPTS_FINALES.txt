@@ -1,0 +1,34 @@
+SCRIPTS FINALES - OMNICOMMERCE
+
+Copia estos archivos dentro de:
+
+PRACTICA_3_INICIO/
+
+Deben quedar al mismo nivel que:
+backend/
+frontend/
+database/
+
+ARCHIVOS:
+
+1. instalar_todo_final.bat
+   Instala dependencias de todos los servicios, gateway y frontend.
+
+2. iniciar_todo_final.bat
+   Inicia todos los servicios finales:
+   - catalog-service 3001
+   - inventory-service 3002
+   - sales-service 3003
+   - purchases-service 3004
+   - payments-service 3005
+   - billing-service 3006
+   - operations-service 3007
+   - users-service 3008
+   - api-gateway 3000
+   - frontend 5173
+
+3. detener_node.bat
+   Detiene procesos node.exe.
+
+4. CHECKLIST_PRUEBAS_FINAL.txt
+   Lista de rutas para probar el sistema completo.

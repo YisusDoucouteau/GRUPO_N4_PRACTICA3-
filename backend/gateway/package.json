@@ -1,0 +1,27 @@
+{
+  "name": "api-gateway",
+  "version": "1.2.0",
+  "description": "API Gateway corregido para OmniCommerce / Tienda de la Abuela Serafina",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "api-gateway",
+    "microservicios"
+  ],
+  "author": "Grupo N4",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
