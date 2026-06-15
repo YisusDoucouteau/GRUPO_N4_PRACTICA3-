@@ -248,10 +248,47 @@ const anularFactura = async (req, res) => {
   }
 };
 
+const obtenerFacturaPorVenta = async (req, res) => {
+  try {
+    const { venta_id } = req.params;
+
+    const [rows] = await pool.query(`
+      SELECT
+        f.id,
+        f.venta_id,
+        v.codigo AS codigo_venta,
+        COALESCE(c.nombre, 'Consumidor Final') AS cliente,
+        v.subtotal,
+        v.descuento,
+        v.total AS total_venta,
+        v.condicion_pago,
+        v.estado_pago,
+        f.numero_factura,
+        f.nit_cliente,
+        f.razon_social,
+        f.fecha_emision
+      FROM facturas f
+      INNER JOIN ventas v ON f.venta_id = v.id
+      LEFT JOIN clientes c ON v.cliente_id = c.id
+      WHERE f.venta_id = ? AND f.estado = 1
+      LIMIT 1
+    `, [venta_id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ mensaje: 'No hay factura para esta venta' });
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al obtener factura por venta', error: error.message });
+  }
+};
+
 module.exports = {
   obtenerFacturas,
   obtenerFacturaPorId,
   obtenerVentasSinFactura,
   crearFactura,
-  anularFactura
+  anularFactura,
+  obtenerFacturaPorVenta
 };
